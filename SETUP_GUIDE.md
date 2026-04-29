@@ -82,7 +82,7 @@ Azure PostgreSQL (source of truth)
 ### Azure resources
 - Azure subscription with Contributor access
 - **Azure Database for PostgreSQL Flexible Server** (General Purpose, 4 vCores+)
-- **Microsoft Fabric capacity** F64 minimum (F16 acceptable for dev/test)
+- **Microsoft Fabric capacity** F8 minimum
 - **Azure Databricks workspace** Premium tier (required for Unity Catalog)
 - Azure AD App Registration (Service Principal) for REST API scripts
 
