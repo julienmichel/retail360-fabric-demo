@@ -127,56 +127,6 @@ Run these in order during the demo — they tell a complete story in ~10 minutes
 
 ---
 
-## Power BI Q&A — suggested questions
-
-Type these directly into the Power BI Q&A visual or Copilot panel.
-
-### Executive Overview page
-
-```
-total revenue by region as map
-top 10 stores by revenue this year
-revenue by month 2024 vs 2023 as line chart
-gross margin by category as bar chart
-customer segment distribution as donut
-revenue by channel this year
-```
-
-### Inventory Intelligence page
-
-```
-stockout rate by region as bar chart
-products in stockout by category as matrix
-average coverage days by store format
-stores with coverage days less than 7
-competitor price gap by category as bar chart
-products cheaper at BonPrix as table
-```
-
-### Forecast & ML page
-
-```
-forecast accuracy by category as bar chart
-forecast vs actual last 6 months as line chart
-products with forecast accuracy below 75 percent
-30 day demand forecast by category
-weather condition impact on revenue as scatter
-mae forecast by category
-```
-
-### Intelligence 360° page
-
-```
-revenue uplift by promotion as bar chart
-customer segments by lifetime value as bubble chart
-stockout rate by store format and category as heatmap
-average price gap by competitor as bar chart
-at risk customers count by region
-champion customers by region as map
-```
-
----
-
 ## Power BI Copilot — narrative prompts
 
 Use these in the Copilot side panel for AI-generated summaries.
@@ -190,42 +140,6 @@ Use these in the Copilot side panel for AI-generated summaries.
 "What is the revenue impact of our promotional events?"
 "Identify the top risks in our current inventory"
 "Which customer segments should we prioritize for retention actions?"
-```
-
----
-
-## Routing reference
-
-```
-Question type                    → Source
-─────────────────────────────────────────────────────────────
-Entity attribute lookup          → retail360_om (Ontology)
-Single relationship hop          → retail360_om (Ontology)
-Stock status filter              → retail360_sm (always — ontology index may be stale)
-KPI or measure                   → retail360_sm (Semantic Model)
-Time intelligence (YoY, MTD)     → retail360_sm (Semantic Model)
-Rankings / top N                 → retail360_sm (Semantic Model)
-Stockout + competitor cross      → gold_double_risk_products
-Champion + stockout cross        → gold_champion_stockout_alert
-Pending orders / alerts / offers → retail360_sql (SQL Database)
-```
-
----
-
-## Business rules (for interpreting results)
-
-```
-Coverage_Days < 7        = urgent replenishment needed
-Coverage_Days > 30       = potential overstock
-Forecast_Accuracy < 0.75 = poor — model retraining recommended
-Forecast_Accuracy > 0.90 = high confidence — safe for procurement
-Price_Gap_Pct negative   = competitor undercuts our price
-Stockout Rate > 5%       = critical inventory situation
-At Risk recency > 90     = high priority retention action
-Inactive + LTV > 500     = high value win-back opportunity
-Gross Margin < 15%       = underperforming store or category
-Gross Margin 15–25%      = on track
-Gross Margin > 25%       = outperforming
 ```
 
 ---
