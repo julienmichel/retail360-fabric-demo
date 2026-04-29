@@ -186,27 +186,12 @@ Duration: ~15–25 minutes for 2M+ rows.
 | products | 500 | 10 categories, realistic margins |
 | orders | ~600,000 | 2022–2026, seasonal patterns |
 | order_items | ~2,000,000 | Pareto product distribution |
-| inventory | ~40,000 | English status values: stockout/critical/low/normal |
+| inventory | ~40,000 | Status values: stockout/critical/low/normal |
 
 **External files in `./output_files/`:**
 - `weather/YYYY-MM-DD.json` — daily weather per city
-- `promotions/promo_calendar.csv` — 7 events per year in English
+- `promotions/promo_calendar.csv` — 7 events per year
 - `competitor_prices/competitor_prices_YYYY_MM.csv` — monthly pricing
-
-### Step 5 — Fix labels to English (IMPORTANT)
-
-The data generator outputs English labels by default, but if migrating from an older version that used French labels, run:
-
-```bash
-# Connect via VS Code PostgreSQL extension then run:
-01_postgresql/fix_labels.sql
-```
-
-This fixes:
-- `store_type`: hypermarché → hypermarket, supermarché → supermarket, proximité → convenience
-- `channel`: magasin → in_store, livraison_domicile → home_delivery
-
-> **Why this matters:** Fabric Mirroring uses CDC — any UPDATE in PostgreSQL propagates automatically within ~5 minutes. The Fabric notebooks must NEVER directly edit mirrored tables.
 
 ### Step 6 — Verify data
 
