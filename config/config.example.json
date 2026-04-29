@@ -1,0 +1,46 @@
+{
+  "azure": {
+    "tenant_id": "your-tenant-id",
+    "subscription_id": "your-subscription-id",
+    "resource_group": "your-resource-group"
+  },
+  "postgresql": {
+    "host": "retail360.postgres.database.azure.com",
+    "port": 5432,
+    "dbname": "retail360",
+    "user": "retail360admin",
+    "password": "your-password",
+    "sslmode": "require"
+  },
+  "fabric": {
+    "workspace_name": "Retail360-Demo",
+    "workspace_id": "your-workspace-id",
+    "capacity_id": "your-capacity-id",
+    "lakehouse_name": "retail360_lh",
+    "lakehouse_id": "your-lakehouse-id",
+    "semantic_model_name": "retail360_sm",
+    "sql_database_name": "retail360_sql",
+    "client_id": "your-service-principal-client-id",
+    "client_secret": "your-service-principal-secret"
+  },
+  "databricks": {
+    "workspace_url": "https://adb-xxxx.azuredatabricks.net",
+    "token": "your-pat-token",
+    "catalog": "retail360_catalog",
+    "cluster_id": "your-cluster-id"
+  },
+  "onelake": {
+    "storage_account": "onelake",
+    "workspace_id": "your-workspace-id",
+    "lakehouse_id": "your-lakehouse-id"
+  },
+  "data_generation": {
+    "start_date": "2022-01-01",
+    "end_date": "2026-01-01",
+    "n_stores": 150,
+    "n_products": 500,
+    "target_orders": 600000,
+    "random_seed": 42,
+    "output_dir": "./output_files"
+  }
+}

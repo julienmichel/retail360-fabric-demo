@@ -1,0 +1,221 @@
+// ============================================================
+// Retail360 — DAX Measures for retail360_sm
+// ============================================================
+// Create each measure in the Semantic Model editor.
+// Select the table → New measure → paste → Enter.
+// Assign display folder in Properties panel.
+//
+// IMPORTANT: All stock_status filters use English values:
+//   "stockout" / "critical" / "low" / "normal"
+// ============================================================
+
+// ── DISPLAY FOLDER: Ventes ───────────────────────────────────
+
+Total Revenue =
+    SUM(gold_sales_daily[revenue])
+
+Total Margin =
+    SUM(gold_sales_daily[gross_margin])
+
+Gross Margin % =
+    DIVIDE(
+        SUM(gold_sales_daily[gross_margin]),
+        SUM(gold_sales_daily[revenue])
+    )
+
+Nb Orders =
+    SUM(gold_sales_daily[nb_orders])
+
+Units Sold =
+    SUM(gold_sales_daily[units_sold])
+
+Avg Basket =
+    DIVIDE(
+        SUM(gold_sales_daily[revenue]),
+        SUM(gold_sales_daily[nb_orders])
+    )
+
+Avg Discount % =
+    AVERAGE(gold_sales_daily[avg_discount_pct])
+
+Revenue MTD =
+    TOTALMTD(
+        SUM(gold_sales_daily[revenue]),
+        dim_calendar[date]
+    )
+
+Revenue QTD =
+    TOTALQTD(
+        SUM(gold_sales_daily[revenue]),
+        dim_calendar[date]
+    )
+
+Revenue YTD =
+    TOTALYTD(
+        SUM(gold_sales_daily[revenue]),
+        dim_calendar[date]
+    )
+
+Revenue vs LY =
+    VAR curr =
+        SUM(gold_sales_daily[revenue])
+    VAR ly =
+        CALCULATE(
+            SUM(gold_sales_daily[revenue]),
+            SAMEPERIODLASTYEAR(dim_calendar[date])
+        )
+    RETURN DIVIDE(curr - ly, ly)
+
+Revenue 30d Rolling =
+    CALCULATE(
+        SUM(gold_sales_daily[revenue]),
+        DATESINPERIOD(
+            dim_calendar[date],
+            LASTDATE(dim_calendar[date]),
+            -30, DAY
+        )
+    )
+
+Revenue uplift promo =
+    VAR rev_promo =
+        CALCULATE(SUM(gold_sales_daily[revenue]),
+                  gold_sales_daily[is_promo_day] = 1)
+    VAR rev_normal =
+        CALCULATE(SUM(gold_sales_daily[revenue]),
+                  gold_sales_daily[is_promo_day] = 0)
+    VAR days_promo =
+        CALCULATE(DISTINCTCOUNT(gold_sales_daily[sales_date]),
+                  gold_sales_daily[is_promo_day] = 1)
+    VAR days_normal =
+        CALCULATE(DISTINCTCOUNT(gold_sales_daily[sales_date]),
+                  gold_sales_daily[is_promo_day] = 0)
+    RETURN
+        DIVIDE(rev_promo, days_promo)
+        - DIVIDE(rev_normal, days_normal)
+
+Dynamic Title Revenue =
+    "Revenue — " &
+    IF(ISFILTERED(silver_pg_stores[region]),
+       SELECTEDVALUE(silver_pg_stores[region], "All regions"),
+       "All regions") & " | " &
+    IF(ISFILTERED(dim_calendar[year]),
+       FORMAT(SELECTEDVALUE(dim_calendar[year]),"0"),
+       "All years")
+
+// ── DISPLAY FOLDER: Inventaire ───────────────────────────────
+
+Stockout Rate =
+    DIVIDE(
+        COUNTROWS(FILTER(gold_inventory_status,
+                         gold_inventory_status[stock_status] = "stockout")),
+        COUNTROWS(gold_inventory_status)
+    )
+
+Nb Produits rupture =
+    COALESCE(
+        COUNTROWS(FILTER(gold_inventory_status,
+                         gold_inventory_status[stock_status] = "stockout")),
+        0
+    )
+
+// Use in matrix to show blank instead of 0 for cleaner heatmap
+Stockouts Display =
+    IF([Nb Produits rupture] = 0, BLANK(), [Nb Produits rupture])
+
+Nb Produits critique =
+    COALESCE(
+        COUNTROWS(FILTER(gold_inventory_status,
+                         gold_inventory_status[stock_status] IN {"stockout","critical"})),
+        0
+    )
+
+Stock moyen =
+    AVERAGE(gold_inventory_status[quantity_on_hand])
+
+Stock jours couverture =
+    AVERAGEX(gold_inventory_status, gold_inventory_status[coverage_days])
+
+// ── DISPLAY FOLDER: Forecast ─────────────────────────────────
+
+Forecast Accuracy =
+    1 - DIVIDE(
+        SUMX(gold_forecast_vs_actual,
+             ABS(gold_forecast_vs_actual[actual_qty]
+                 - gold_forecast_vs_actual[forecast_qty])),
+        SUM(gold_forecast_vs_actual[actual_qty])
+    )
+
+MAE Forecast =
+    AVERAGEX(gold_forecast_vs_actual,
+             ABS(gold_forecast_vs_actual[actual_qty]
+                 - gold_forecast_vs_actual[forecast_qty]))
+
+Forecast vs Actual % =
+    DIVIDE(SUM(gold_forecast_vs_actual[actual_qty]),
+           SUM(gold_forecast_vs_actual[forecast_qty])) - 1
+
+Forecast 30j =
+    CALCULATE(
+        SUM(silver_adx_demand_forecast[forecast_qty]),
+        DATESINPERIOD(dim_calendar[date], TODAY(), 30, DAY)
+    )
+
+Forecast 90j =
+    CALCULATE(
+        SUM(silver_adx_demand_forecast[forecast_qty]),
+        DATESINPERIOD(dim_calendar[date], TODAY(), 90, DAY)
+    )
+
+// ── DISPLAY FOLDER: Clients ──────────────────────────────────
+
+Nb Clients total =
+    DISTINCTCOUNT(silver_adx_customer_segments[customer_id])
+
+Nb Champions =
+    CALCULATE(
+        COUNTROWS(silver_adx_customer_segments),
+        silver_adx_customer_segments[segment_label] = "Champions"
+    )
+
+% Champions =
+    DIVIDE([Nb Champions], [Nb Clients total])
+
+Monetary moyen Champions =
+    CALCULATE(
+        AVERAGE(silver_adx_customer_segments[monetary]),
+        silver_adx_customer_segments[segment_label] = "Champions"
+    )
+
+Recency moy par segment =
+    AVERAGE(silver_adx_customer_segments[recency_days])
+
+Nb Clients à risque =
+    CALCULATE(
+        COUNTROWS(silver_adx_customer_segments),
+        silver_adx_customer_segments[segment_label] = "At Risk"
+    )
+
+Nb Clients inactifs =
+    CALCULATE(
+        COUNTROWS(silver_adx_customer_segments),
+        silver_adx_customer_segments[segment_label] = "Inactive"
+    )
+
+// ── DISPLAY FOLDER: Concurrence ──────────────────────────────
+
+Avg Price Gap vs Competitors =
+    AVERAGE(silver_competitor_prices[price_gap_pct])
+
+% Produits moins chers =
+    DIVIDE(
+        COUNTROWS(FILTER(silver_competitor_prices,
+                         silver_competitor_prices[is_cheaper] = TRUE())),
+        COUNTROWS(silver_competitor_prices)
+    )
+
+Nb Produits moins chers =
+    COUNTROWS(FILTER(silver_competitor_prices,
+                     silver_competitor_prices[is_cheaper] = TRUE()))
+
+Max gap concurrent =
+    MAX(silver_competitor_prices[price_gap_pct])

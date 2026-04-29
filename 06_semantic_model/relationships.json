@@ -1,0 +1,22 @@
+{
+  "description": "Retail360 Semantic Model — 9 relationships",
+  "note": "Do NOT create relationships on category, region, channel columns",
+  "relationships": [
+    {"from": "gold_sales_daily[sales_date]",       "to": "dim_calendar[date]",            "cardinality": "Many-to-One"},
+    {"from": "gold_sales_daily[store_id]",          "to": "silver_pg_stores[store_id]",    "cardinality": "Many-to-One"},
+    {"from": "gold_forecast_vs_actual[forecast_date]","to": "dim_calendar[date]",          "cardinality": "Many-to-One"},
+    {"from": "gold_forecast_vs_actual[product_id]", "to": "silver_pg_products[product_id]","cardinality": "Many-to-One"},
+    {"from": "gold_inventory_status[store_id]",     "to": "silver_pg_stores[store_id]",   "cardinality": "Many-to-One"},
+    {"from": "gold_inventory_status[product_id]",   "to": "silver_pg_products[product_id]","cardinality": "Many-to-One"},
+    {"from": "silver_adx_demand_forecast[product_id]","to": "silver_pg_products[product_id]","cardinality": "Many-to-One"},
+    {"from": "silver_competitor_prices[product_id]","to": "silver_pg_products[product_id]","cardinality": "Many-to-One"},
+    {"from": "silver_weather[city]",                "to": "silver_pg_stores[city]",        "cardinality": "Many-to-One"}
+  ],
+  "no_relationships_on": [
+    "category — creates ambiguous paths",
+    "region — already denormalized in Gold",
+    "channel — use column directly in visuals",
+    "silver_promotions — standalone filter table",
+    "silver_adx_customer_segments — standalone RFM table"
+  ]
+}
